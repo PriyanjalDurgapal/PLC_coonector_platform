@@ -16,7 +16,7 @@ import Roles from "../views/Roles.vue"
 import PLCTagView from "../modules/plc/views/PLCTagView.vue"
 import PLCListView from "../modules/plc/views/PLCListView.vue"
 import PLCVisualizationView from "../modules/plc/views/PLCVisualizationView.vue"
-
+import Canvas from "../modules/plc/components/designer/Canvas.vue"
 
 import DatabaseBackupView from "../views/DatabaseBackupView.vue"
 const routes = [
@@ -97,7 +97,10 @@ const routes = [
     path:"/backup",
     component:DatabaseBackupView
 },
-
+{
+ path:"/visualization",
+ component: Canvas
+}
 
 
         ]

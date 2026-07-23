@@ -34,6 +34,19 @@ const backupService = {
   },
 
 
+  // Delete backup
+  async deleteBackup(filename){
+
+    return api.post(
+      "/backups/delete/",
+      {
+        backup_file: filename
+      }
+    );
+
+  }
+
+
 };
 
 

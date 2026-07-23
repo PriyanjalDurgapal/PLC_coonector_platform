@@ -105,6 +105,36 @@ export const useBackupStore = defineStore(
 
 
 
+    // Delete backup
+    async function deleteBackup(filename){
+
+      error.value = null;
+
+      try{
+
+        const response =
+          await backupService.deleteBackup(filename);
+
+        await loadBackups();
+
+        return response.data;
+
+      }
+      catch(err){
+
+        error.value =
+          err.response?.data?.message ||
+          err.message;
+
+        throw new Error(error.value);
+
+      }
+
+    }
+
+
+
+
 
     // Restore backup
     async function restoreBackup(data){
@@ -135,10 +165,10 @@ export const useBackupStore = defineStore(
 
         error.value =
           err.response?.data?.message ||
-          err.message;
+          "Database restore failed.";
 
 
-        throw err;
+        throw new Error(error.value);
 
 
       }
@@ -173,6 +203,8 @@ export const useBackupStore = defineStore(
       createBackup,
 
       restoreBackup,
+
+      deleteBackup,
 
 
     };

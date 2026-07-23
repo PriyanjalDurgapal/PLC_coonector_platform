@@ -176,3 +176,20 @@ def generate_db_info(
 
 
     return result.stdout
+
+
+
+def delete_backup(filename):
+
+    backup_path = os.path.join(
+        BASE_DIR,
+        "db_backup",
+        filename
+    )
+
+    if not os.path.exists(backup_path):
+        raise Exception("Backup file not found.")
+
+    os.remove(backup_path)
+
+    return "Backup deleted successfully."

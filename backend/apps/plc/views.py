@@ -13,8 +13,10 @@ from .tag_monitor import PLCTagMonitor
 from .write_service import PLCWriteService
 
 
-from .models import PLCTag
-
+from .models import (
+    PLCTag,
+    PLCVisualizationObject,
+)
 
 from .serializers import (
     PLCListSerializer,
@@ -25,6 +27,7 @@ from .serializers import (
     PLCTagCreateSerializer,
     PLCTagUpdateSerializer,
     PLCOperationLogSerializer,
+    PLCVisualizationObjectSerializer,
 
    
     
@@ -693,4 +696,78 @@ class PLCTagReadView(APIView):
 
         return Response(
             result
+        )
+
+
+
+# =====================================================
+# PLC VISUALIZATION LIVE VIEW
+# =====================================================
+
+
+class PLCVisualizationLiveView(APIView):
+
+
+    permission_classes = [
+
+        IsAuthenticated,
+
+        HasPermission,
+
+    ]
+
+
+    permissions_map = {
+
+        "GET": "plc.view_plctag",
+
+    }
+
+
+
+    def get(self, request):
+
+
+        objects = (
+
+            PLCVisualizationObject.objects
+
+            .select_related(
+
+                "tag",
+
+                "tag__current_value",
+
+            )
+
+            .filter(
+
+                visible=True
+
+            )
+
+        )
+
+
+
+        serializer = PLCVisualizationObjectSerializer(
+
+            objects,
+
+            many=True,
+
+        )
+
+
+
+        return Response(
+
+            {
+
+                "success": True,
+
+                "data": serializer.data,
+
+            }
+
         )

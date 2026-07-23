@@ -8,6 +8,33 @@ DB_PASSWORD=$4
 BACKUP_FILE_GZ=$5
 
 
+# Validate required inputs
+if [ -z "$DB_NAME" ]; then
+    echo "Database name is required."
+    exit 1
+fi
+
+if [ -z "$DB_USER" ]; then
+    echo "Database user is required."
+    exit 1
+fi
+
+if [ -z "$DB_HOST" ]; then
+    echo "Database host is required."
+    exit 1
+fi
+
+if [ -z "$DB_PASSWORD" ]; then
+    echo "Database password is required."
+    exit 1
+fi
+
+if [ -z "$BACKUP_FILE_GZ" ]; then
+    echo "Backup file is required."
+    exit 1
+fi
+
+
 export PGPASSWORD="$DB_PASSWORD"
 
 

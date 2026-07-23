@@ -275,3 +275,72 @@ class PLCOperationLog(models.Model):
         )
 
 
+class PLCVisualizationObject(models.Model):
+
+    SVG_CHOICES = [
+        ("motor", "Motor"),
+        ("pump", "Pump"),
+        ("button", "Button"),
+        ("tank", "Tank"),
+       
+    ]
+
+    tag = models.ForeignKey(
+        PLCTag,
+        on_delete=models.CASCADE,
+        related_name="visualization_objects",
+    )
+
+   
+
+    svg_type = models.CharField(
+        max_length=50,
+        choices=SVG_CHOICES,
+    )
+
+    label = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+
+    x = models.IntegerField(
+        default=0,
+    )
+
+    y = models.IntegerField(
+        default=0,
+    )
+
+    rotation = models.IntegerField(
+        default=0,
+    )
+
+    scale = models.FloatField(
+        default=1,
+    )
+
+    visible = models.BooleanField(
+        default=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    class Meta:
+
+        db_table = "plc_visualization_objects"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tag"],
+                name="unique_visualization_tag",
+            ),
+        ]
+
+    def __str__(self):
+
+        return f"{self.tag.name} ({self.svg_type})"

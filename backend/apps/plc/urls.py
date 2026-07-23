@@ -15,8 +15,12 @@ from .views import (
     PLCWriteView,
     PLCOperationLogListView,
     PLCTagReadView,
+    PLCVisualizationLiveView,
 )
 
+from .visualization_views import (
+    PLCVisualizationObjectViewSet,
+)
 
 
 router = DefaultRouter()
@@ -27,6 +31,11 @@ router.register(
     basename="plc-tags",
 )
 
+router.register(
+    "visualizations",
+    PLCVisualizationObjectViewSet,
+    basename="plc-visualizations",
+)
 
 
 urlpatterns = [
@@ -41,13 +50,11 @@ urlpatterns = [
         name="plc-list",
     ),
 
-
     path(
         "<int:plc_id>/",
         PLCDetailView.as_view(),
         name="plc-detail",
     ),
-
 
     path(
         "<int:plc_id>/connect/",
@@ -55,21 +62,17 @@ urlpatterns = [
         name="plc-connect",
     ),
 
-
     path(
         "<int:plc_id>/disconnect/",
         PLCDisconnectView.as_view(),
         name="plc-disconnect",
     ),
 
-
     path(
         "<int:plc_id>/status/",
         PLCStatusView.as_view(),
         name="plc-status",
     ),
-
-
 
     # ==========================
     # PLC TAG APIs
@@ -85,24 +88,33 @@ urlpatterns = [
         PLCTagValueView.as_view(),
         name="plc-tag-value",
     ),
+
     path(
         "<int:plc_id>/tags/live/",
         PLCLiveTagsView.as_view(),
         name="plc-live-tags",
     ),
+
     path(
         "tags/<int:tag_id>/write/",
         PLCWriteView.as_view(),
         name="plc-tag-write",
     ),
+
     path(
         "logs/",
         PLCOperationLogListView.as_view(),
         name="plc-operation-logs",
     ),
+
     path(
         "tags/<int:tag_id>/read/",
         PLCTagReadView.as_view(),
         name="tag-read",
+    ),
+        path(
+        "visualizations/live/",
+        PLCVisualizationLiveView.as_view(),
+        name="visualization-live",
     ),
 ]

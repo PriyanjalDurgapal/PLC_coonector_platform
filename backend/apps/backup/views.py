@@ -4,13 +4,35 @@ from rest_framework.response import Response
 from .services import (
     create_backup,
     restore_backup,
-    generate_db_info
+    generate_db_info,
+    delete_backup
 )
 
 import os
 from datetime import datetime
 from django.conf import settings
 
+
+def format_error(error):
+
+    error = str(error).strip()
+
+    # Remove empty lines
+    lines = [
+        line.strip()
+        for line in error.splitlines()
+        if line.strip()
+    ]
+
+    # Remove duplicate lines
+    unique_lines = []
+
+    for line in lines:
+
+        if line not in unique_lines:
+            unique_lines.append(line)
+
+    return "\n".join(unique_lines)
 
 
 class BackupCreateAPIView(APIView):
@@ -26,30 +48,27 @@ class BackupCreateAPIView(APIView):
                 request.data["db_password"]
             )
 
-
             return Response({
 
                 "success": True,
 
-                "message": "Backup created",
+                "message": "Backup created successfully.",
 
                 "output": output
 
             })
 
-
         except Exception as e:
+
+            print("BACKUP CREATE ERROR:", repr(e))
 
             return Response({
 
                 "success": False,
 
-                "message": str(e)
+                "message": format_error(e)
 
-            }, status=500)
-
-
-
+            }, status=400)
 
 
 class BackupRestoreAPIView(APIView):
@@ -68,31 +87,27 @@ class BackupRestoreAPIView(APIView):
 
             )
 
-
             return Response({
 
                 "success": True,
 
-                "message": "Database restored",
+                "message": "Database restored successfully.",
 
                 "output": output
 
             })
 
-
         except Exception as e:
-            print("RESTORE EXCEPTION:", repr(e))
+
+            print("RESTORE ERROR:", repr(e))
 
             return Response({
 
                 "success": False,
 
-                "message": str(e) if str(e) else "Unknown error"
+                "message": format_error(e)
 
-            }, status=500)
-
-
-
+            }, status=400)
 
 
 class BackupListAPIView(APIView):
@@ -106,7 +121,6 @@ class BackupListAPIView(APIView):
                 "db_backup"
             )
 
-
             if not os.path.exists(backup_dir):
 
                 return Response({
@@ -117,26 +131,20 @@ class BackupListAPIView(APIView):
 
                 })
 
-
             files = []
-
 
             for filename in os.listdir(backup_dir):
 
-
                 if filename.endswith(".sql.gz"):
-
 
                     file_path = os.path.join(
                         backup_dir,
                         filename
                     )
 
-
                     created_time = os.path.getctime(
                         file_path
                     )
-
 
                     files.append({
 
@@ -152,8 +160,6 @@ class BackupListAPIView(APIView):
 
                     })
 
-
-
             return Response({
 
                 "success": True,
@@ -162,21 +168,17 @@ class BackupListAPIView(APIView):
 
             })
 
-
-
         except Exception as e:
 
+            print("BACKUP LIST ERROR:", repr(e))
 
             return Response({
 
                 "success": False,
 
-                "message": str(e)
+                "message": format_error(e)
 
-            }, status=500)
-
-
-
+            }, status=400)
 
 
 class DatabaseInfoAPIView(APIView):
@@ -188,36 +190,62 @@ class DatabaseInfoAPIView(APIView):
             output = generate_db_info(
 
                 request.data["db_name"],
-
                 request.data["db_user"],
-
                 request.data["db_host"],
-
                 request.data["db_password"],
-
                 request.data["email"]
 
             )
-
 
             return Response({
 
                 "success": True,
 
-                "message": "Database info generated and sent",
+                "message": "Database information generated successfully.",
 
                 "file": output
 
             })
 
-
         except Exception as e:
 
+            print("DATABASE INFO ERROR:", repr(e))
 
             return Response({
 
                 "success": False,
 
-                "message": str(e)
+                "message": format_error(e)
 
-            }, status=500)
+            }, status=400)
+
+
+class BackupDeleteAPIView(APIView):
+
+    def post(self, request):
+
+        try:
+
+            output = delete_backup(
+                request.data["backup_file"]
+            )
+
+            return Response({
+
+                "success": True,
+
+                "message": output
+
+            })
+
+        except Exception as e:
+
+            print("DELETE BACKUP ERROR:", repr(e))
+
+            return Response({
+
+                "success": False,
+
+                "message": format_error(e)
+
+            }, status=400)

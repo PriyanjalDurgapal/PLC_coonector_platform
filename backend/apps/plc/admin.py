@@ -1,6 +1,10 @@
 from django.contrib import admin
 
-from .models import PLC, PLCTag
+from .models import (
+    PLC,
+    PLCTag,
+    PLCVisualizationObject,
+)
 
 
 @admin.register(PLC)
@@ -57,5 +61,35 @@ class PLCTagAdmin(admin.ModelAdmin):
 
     search_fields = (
         "name",
-        "address"
+        "address",
+    )
+
+
+@admin.register(PLCVisualizationObject)
+class PLCVisualizationObjectAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "id",
+        "tag",
+        "svg_type",
+        "label",
+        "x",
+        "y",
+        "rotation",
+        "scale",
+        "visible",
+    )
+
+    list_filter = (
+        "svg_type",
+        "visible",
+    )
+
+    search_fields = (
+        "tag__name",
+        "label",
+    )
+
+    autocomplete_fields = (
+        "tag",
     )

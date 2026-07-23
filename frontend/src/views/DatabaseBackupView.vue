@@ -56,12 +56,15 @@ async function handleCreateSubmit(data){
 
     showCreateModal.value = false;
 
+    const response =
+      await backupStore.createBackup(data);
 
-    await backupStore.createBackup(data);
-
+    alert(response.message);
 
   }
   catch(error){
+
+    alert(error.message);
 
     console.error(
       "Backup creation failed:",
@@ -95,26 +98,24 @@ async function handleRestore(data){
 
   try {
 
-
-    await backupStore.restoreBackup(data);
-
-
+    const response =
+      await backupStore.restoreBackup(data);
 
     showRestoreModal.value = false;
 
-
     selectedBackup.value = null;
 
+    alert(response.message);
 
   }
   catch(error){
 
+    alert(error.message);
 
     console.error(
       "Restore failed:",
       error
     );
-
 
   }
 
@@ -128,6 +129,47 @@ function closeRestoreModal(){
   showRestoreModal.value = false;
 
   selectedBackup.value = null;
+
+}
+
+
+
+// ---------------------------
+// DELETE BACKUP
+// ---------------------------
+
+async function handleDeleteBackup(backup){
+
+  const confirmed = confirm(
+    `Are you sure you want to delete "${backup.filename}"?`
+  );
+
+  if(!confirmed){
+
+    return;
+
+  }
+
+  try{
+
+    const response =
+      await backupStore.deleteBackup(
+        backup.filename
+      );
+
+    alert(response.message);
+
+  }
+  catch(error){
+
+    alert(error.message);
+
+    console.error(
+      "Delete failed:",
+      error
+    );
+
+  }
 
 }
 
@@ -224,6 +266,8 @@ backupStore.backups.length
 :backups="backupStore.backups"
 
 @restore="handleRestoreClick"
+
+@delete="handleDeleteBackup"
 
 />
 

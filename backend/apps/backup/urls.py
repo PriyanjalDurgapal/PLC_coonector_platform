@@ -4,7 +4,8 @@ from .views import (
     BackupCreateAPIView,
     BackupRestoreAPIView,
     BackupListAPIView,
-    DatabaseInfoAPIView
+    DatabaseInfoAPIView,
+    BackupDeleteAPIView,   
 )
 
 
@@ -36,5 +37,6 @@ urlpatterns = [
         "info/",
         DatabaseInfoAPIView.as_view()
     ),
+    path("delete/", BackupDeleteAPIView.as_view()),
 
 ]

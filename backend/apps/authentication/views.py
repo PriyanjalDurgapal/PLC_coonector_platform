@@ -1,17 +1,14 @@
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import AuthenticationFailed
 
-from .serializers import LoginSerializer
-from .services import AuthenticationService
-
-from rest_framework.permissions import IsAuthenticated
 from apps.users.serializers import UserSerializer
 
-
-from .serializers import LogoutSerializer
-from .services import LogoutService
+from .serializers import LoginSerializer, LogoutSerializer
+from .authentication_service import AuthenticationService, LogoutService
+from .services.rate_limit_service import RateLimitService
 
 
 class LoginView(APIView):
@@ -21,29 +18,54 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        data = AuthenticationService.login(
-            username=serializer.validated_data["username"],
-            password=serializer.validated_data["password"],
-        )
+        username = serializer.validated_data["username"]
+        password = serializer.validated_data["password"]
 
-        return Response(
-            {
-                "success": True,
-                "message": "Login successful.",
-                "data": {
-                    "user": {
-                        "id": data["user"].id,
-                        "username": data["user"].username,
-                        "email": data["user"].email,
-                        "first_name": data["user"].first_name,
-                        "last_name": data["user"].last_name,
-                    },
-                    "access": data["access"],
-                    "refresh": data["refresh"],
+        # Get client IP
+        ip = request.META.get("REMOTE_ADDR", "unknown")
+
+        # Check if user is blocked
+        if RateLimitService.is_blocked(username, ip):
+            return Response(
+                {
+                    "success": False,
+                    "message": "Too many failed login attempts. Please try again after 1 minute.",
                 },
-            },
-            status=status.HTTP_200_OK,
-        )
+                status=status.HTTP_429_TOO_MANY_REQUESTS,
+            )
+
+        try:
+            data = AuthenticationService.login(
+                username=username,
+                password=password,
+            )
+
+            # Successful login -> clear failed attempts
+            RateLimitService.reset_attempts(username, ip)
+
+            return Response(
+                {
+                    "success": True,
+                    "message": "Login successful.",
+                    "data": {
+                        "user": {
+                            "id": data["user"].id,
+                            "username": data["user"].username,
+                            "email": data["user"].email,
+                            "first_name": data["user"].first_name,
+                            "last_name": data["user"].last_name,
+                        },
+                        "access": data["access"],
+                        "refresh": data["refresh"],
+                    },
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except AuthenticationFailed:
+            # Wrong password -> increase failed attempts
+            RateLimitService.record_failed_attempt(username, ip)
+            raise
 
 
 class MeView(APIView):

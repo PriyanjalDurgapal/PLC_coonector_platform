@@ -4,6 +4,7 @@ import {
   Search,
   RotateCcw,
   Database,
+  Trash2,
 } from "lucide-vue-next";
 
 const props = defineProps({
@@ -13,7 +14,10 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["restore"]);
+const emit = defineEmits([
+  "restore",
+  "delete",
+]);
 
 const search = ref("");
 
@@ -116,14 +120,25 @@ const filteredBackups = computed(() => {
 
             <td class="px-6 py-5 text-right">
 
-              <button
-                @click="$emit('restore', backup)"
-                class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-indigo-500 hover:text-indigo-600"
-              >
-                <RotateCcw class="h-4 w-4" />
+              <div class="inline-flex items-center gap-2">
 
-                Restore
-              </button>
+                <button
+                  @click="$emit('restore', backup)"
+                  class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-indigo-500 hover:text-indigo-600"
+                >
+                  <RotateCcw class="h-4 w-4" />
+                  Restore
+                </button>
+
+                <button
+                  @click="$emit('delete', backup)"
+                  class="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                >
+                  <Trash2 class="h-4 w-4" />
+                  Delete
+                </button>
+
+              </div>
 
             </td>
 
@@ -151,14 +166,26 @@ const filteredBackups = computed(() => {
           {{ backup.createdOn }}
         </p>
 
-        <button
-          @click="$emit('restore', backup)"
-          class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 py-2 text-sm font-medium text-slate-700 transition hover:border-indigo-500 hover:text-indigo-600"
-        >
-          <RotateCcw class="h-4 w-4" />
+        <div class="mt-4 flex gap-2">
 
-          Restore
-        </button>
+          <button
+            @click="$emit('restore', backup)"
+            class="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-300 py-2 text-sm font-medium text-slate-700 transition hover:border-indigo-500 hover:text-indigo-600"
+          >
+            <RotateCcw class="h-4 w-4" />
+            Restore
+          </button>
+
+          <button
+            @click="$emit('delete', backup)"
+            class="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-red-300 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+          >
+            <Trash2 class="h-4 w-4" />
+            Delete
+          </button>
+
+        </div>
+
       </div>
 
     </div>
